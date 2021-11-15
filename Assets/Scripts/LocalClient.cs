@@ -47,7 +47,6 @@ public class LocalClient : MonoBehaviour
         client.ConnectionFailed += FailedToConnect;
         client.ClientDisconnected += PlayerLeft;
         client.Disconnected += DidDisconnect;
-        GameObject obj = new GameObject();
 
     }
 
@@ -84,8 +83,8 @@ public class LocalClient : MonoBehaviour
 
      private void DidDisconnect(object sender, EventArgs e)
      {
-
-     }
+        UIManager.Singleton.OnDisconnected();
+    }
 
      private void OnApplicationQuit()
      {

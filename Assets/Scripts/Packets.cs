@@ -8,10 +8,12 @@ public class Packets : MonoBehaviour
     {
         getWelcome = 1,
         getWorldData,
+        getChatMessageFromPlayer,
     }
     public enum ClientSend : ushort
     {
         SendName = 1,
         joinWorld, 
+        sendChatMessage,
     }
 }

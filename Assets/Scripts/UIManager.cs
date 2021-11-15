@@ -9,17 +9,34 @@ using System.Text.RegularExpressions;
 
 public class UIManager : MonoBehaviour
 {
-    public enum UIState
+    public enum UIState : byte
     {
         ConnectDialog = 1, //Default State
         JoinWorldDialog,
+        InGameUI,
     }
 
     public GameObject[] UIDialogs;
 
     UIState curState = UIState.ConnectDialog;
 
+    #region ConnectDialog
+
     public GameObject joinButton;
+    public GameObject nameInputField;
+    #endregion
+
+    #region JoinWorldDialog
+
+    public GameObject worldInputField;
+    #endregion
+
+    #region InGameUI
+
+    public GameObject chatInputField;
+    public GameObject currentWorldText;
+    #endregion
+
 
     private static UIManager _singleton;
     public static UIManager Singleton
@@ -38,8 +55,6 @@ public class UIManager : MonoBehaviour
     }
 
 
-    public GameObject nameInputField;
-    public GameObject worldInputField;
 
     private void Awake()
     {
@@ -48,13 +63,13 @@ public class UIManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
     public void Connect()
@@ -90,6 +105,7 @@ public class UIManager : MonoBehaviour
             Debug.Log("Invalid World Name!");
             return;
         }
+        RiptideLogger.Log("Bruh");
         Message message = Message.Create(MessageSendMode.reliable, (ushort)Packets.ClientSend.joinWorld);
         message.Add(t);
         LocalClient.Singleton.GetClient().Send(message);
@@ -106,9 +122,22 @@ public class UIManager : MonoBehaviour
         curState = state;
         UIDialogs[(int)curState - 1].SetActive(true);
     }
-
-    public void OnJoinWorld()
+    public void OnDisconnected()
     {
+        ChangeUIDialog(UIState.ConnectDialog);
+        joinButton.GetComponent<Button>().interactable = true;
+    }
 
+    public void OnJoinWorld(Message message)
+    {
+        ChangeUIDialog(UIState.InGameUI);
+        currentWorldText.GetComponent<TextMeshProUGUI>().text = $"Current World: {message.GetString()}";
+    }
+
+    public void SendChatMessage()
+    {
+        Message message = Message.Create(MessageSendMode.reliable, (ushort)Packets.ClientSend.sendChatMessage);
+        message.Add(chatInputField.GetComponent<TMP_InputField>().text);
+        LocalClient.Singleton.GetClient().Send(message);
     }
 }
